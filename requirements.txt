@@ -1,3 +1,5 @@
 fastapi
 uvicorn
 unicon
+psycopg
+dotenv
