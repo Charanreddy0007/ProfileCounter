@@ -11,22 +11,25 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 app = FastAPI()
 
-@app.get("/count/{name}")
-def increment_counter(name: str):
+@app.get("/count/{username}/{category}")
+def increment_counter(category: str, username: str):
 
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
 
             cur.execute(
                 """
-                INSERT INTO counters 
-                (name, count)
-                VALUES (%s, 1)
-                ON CONFLICT (name)
-                DO UPDATE SET count = counters.count + 1
+                INSERT INTO counters
+                (username, category, count)
+                VALUES (%s, %s, 1)
+
+                ON CONFLICT (username, category)
+                DO UPDATE
+                SET count = counters.count + 1
+
                 RETURNING count;
                 """,
-                (name, )
+                (username, category)
             )
 
             count = cur.fetchone()[0]
@@ -40,11 +43,11 @@ def increment_counter(name: str):
          viewBox="0 0 180 28"
          role="img"
          aria-label="Profile Views: {count}">
-    
+
         <rect width="180" height="28" rx="5" fill="#555"/>
-    
+
         <rect x="110" width="70" height="28" rx="5" fill="#007ec6"/>
-    
+
         <text x="55" y="14"
               fill="#fff"
               font-family="Arial, sans-serif"
@@ -53,7 +56,7 @@ def increment_counter(name: str):
               dominant-baseline="middle">
             Profile Views
         </text>
-    
+
         <text x="145" y="14"
               fill="#fff"
               font-family="Arial, sans-serif"
@@ -63,7 +66,7 @@ def increment_counter(name: str):
               dominant-baseline="middle">
             {count}
         </text>
-    
+
     </svg>
     """
 
